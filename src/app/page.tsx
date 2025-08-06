@@ -1,14 +1,40 @@
 "use client";
 import { useState } from "react";
+import { ARBITRUM_NETWORK } from "../common";
 
 export default function Home() {
   const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState("");
   const [token, setToken] = useState("");
   const [orderSize, setOrderSize] = useState("");
+  const [error, setError] = useState("");
 
-  const handleConnectWallet = () => {
-    // Placeholder for wallet connection logic
-    setWalletConnected(true);
+  const handleConnectWallet = async () => {
+    setError("");
+    if (typeof window === "undefined" || !window.ethereum) {
+      setError("MetaMask not detected. Please install MetaMask.");
+      return;
+    }
+    try {
+      // Request account access
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      if (accounts && accounts.length > 0) {
+        setWalletAddress(accounts[0]);
+        setWalletConnected(true);
+      } else {
+        setError("No accounts found in MetaMask.");
+        return;
+      }
+      // Switch to Arbitrum One
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [ARBITRUM_NETWORK],
+      });
+    } catch {
+      setError("Failed to connect or switch network.");
+    }
   };
 
   const handlePlaceOrder = () => {
@@ -41,7 +67,15 @@ export default function Home() {
           onClick={handleConnectWallet}
           disabled={walletConnected}
         >
-          {walletConnected ? "Wallet Connected" : "Connect Wallet"}
+          {walletConnected
+            ? `Wallet Connected${
+                walletAddress
+                  ? `: ${walletAddress.slice(0, 6)}...${walletAddress.slice(
+                      -4
+                    )}`
+                  : ""
+              }`
+            : "Connect Wallet (Arbitrum One)"}
         </button>
         <button
           className="bg-green-600 text-white px-6 py-2 rounded font-semibold"
@@ -51,8 +85,10 @@ export default function Home() {
           Place Order
         </button>
       </div>
+      {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
       <div className="text-gray-500 text-sm">
-        * Market order only. Please connect your wallet and enter token & size.
+        * Market order only. Please connect your wallet (Arbitrum One) and enter
+        token & size.
       </div>
     </div>
   );
