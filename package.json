@@ -6,12 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
+    "@nktkas/hyperliquid": "^0.24.0",
+    "@privy-io/server-auth": "^1.30.0",
     "axios": "^1.11.0",
+    "bignumber.js": "^9.3.1",
     "decimal.js": "^10.6.0",
     "dotenv": "^17.2.1",
+    "ethers": "^6.15.0",
     "hyperliquid": "^1.7.6",
     "next": "15.4.5",
     "react": "19.1.0",
@@ -26,6 +30,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.5",
     "tailwindcss": "^4",
