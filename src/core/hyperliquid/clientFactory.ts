@@ -45,6 +45,31 @@ export function createExchangeClient(
   });
 }
 
+// Exchange client factory for JsonRpcSigner (MetaMask)
+export function createExchangeClientWithSigner(
+  signer: ethers.JsonRpcSigner,
+  config: ClientConfig = {}
+): hl.ExchangeClient {
+  const { useTestnet = true } = config;
+  const transport = createHyperliquidTransport(config);
+  const targetNetwork = useTestnet ? NETWORKS.testnet : NETWORKS.mainnet;
+
+  // Create wallet interface compatible with Hyperliquid SDK
+  const walletInterface = {
+    getAddress: () => signer.getAddress(),
+    signMessage: (message: string) => signer.signMessage(message),
+    signTypedData: (domain: any, types: any, value: any) => 
+      signer.signTypedData(domain, types, value),
+  };
+
+  return new hl.ExchangeClient({
+    wallet: walletInterface as any,
+    transport,
+    isTestnet: useTestnet,
+    signatureChainId: targetNetwork.chainId,
+  });
+}
+
 export function createInfoClient(config: ClientConfig = {}): hl.InfoClient {
   const transport = createHyperliquidTransport(config);
   
