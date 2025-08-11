@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import * as hl from "@nktkas/hyperliquid";
-import { createExchangeClient, getNetworkConfig } from "../hyperliquid/clientFactory";
+import { createExchangeClient, createExchangeClientWithSigner, getNetworkConfig } from "../hyperliquid/clientFactory";
 
 // Types
 export interface NetworkConfig {
@@ -87,30 +87,49 @@ export async function authorizeAgent(
   const agentWallet = generateRandomWallet();
   validateWalletAddresses(userAddress, agentWallet.address);
 
-  const ethersAgentWallet = new ethers.Wallet(agentWallet.privateKey);
-  const client = createExchangeClient(ethersAgentWallet, { useTestnet });
+  // Create exchange client with the MAIN WALLET (user's MetaMask) for authorization
+  const mainWalletClient = createExchangeClientWithSigner(signer, { useTestnet });
 
   try {
-    await client.approveAgent({
+    // The main wallet authorizes the agent wallet
+    const approvalResult = await mainWalletClient.approveAgent({
       agentAddress: agentWallet.address,
       agentName,
     });
 
+    // Create a separate exchange client for the agent wallet for future trading
+    const ethersAgentWallet = new ethers.Wallet(agentWallet.privateKey);
+    const agentExchangeClient = createExchangeClient(ethersAgentWallet, { useTestnet });
+
     return {
       agentWallet,
       userAddress,
-      exchangeClient: client,
+      exchangeClient: agentExchangeClient,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Agent approval failed: ${errorMessage}`);
+    let errorMessage = "Unknown error";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
+    // Provide more specific error messages
+    if (errorMessage.includes("mainnet and testnet")) {
+      throw new Error(
+        `Network configuration error: Make sure you're on Arbitrum Sepolia testnet and the configuration is set to testnet mode. Details: ${errorMessage}`
+      );
+    } else if (errorMessage.includes("User rejected")) {
+      throw new Error("Transaction was rejected by user. Please try again and approve the transaction.");
+    } else if (errorMessage.includes("insufficient funds")) {
+      throw new Error("Insufficient funds in wallet. Please ensure you have enough ETH for gas fees.");
+    } else if (errorMessage.includes("network")) {
+      throw new Error(`Network error: Please check your connection and ensure you're on Arbitrum Sepolia testnet. Details: ${errorMessage}`);
+    } else {
+      throw new Error(`Agent approval failed: ${errorMessage}`);
+    }
   }
 }
 
-//////////////////////////////////////////////////////////////////////
-///////////////////// UTILITY THAT MIGHT NEED ////////////////////////
-//////////////////////////////////////////////////////////////////////
-
+// Utility function to create agent wallet from existing private key
 export function createAgentWalletFromPrivateKey(privateKey: string): AgentWallet {
   try {
     const wallet = new ethers.Wallet(privateKey);
@@ -123,6 +142,7 @@ export function createAgentWalletFromPrivateKey(privateKey: string): AgentWallet
   }
 }
 
+// Utility function to create exchange client with existing agent wallet
 export function createAgentExchangeClient(
   agentWallet: AgentWallet,
   useTestnet: boolean = true
