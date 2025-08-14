@@ -214,3 +214,44 @@ export function checkVolumeConstraints(
   };
 }
 
+/**
+ * Find maximum volume that can be executed within slippage tolerance
+ */
+function findMaxVolumeForSlippage(
+  orderBook: OrderBook,
+  isBuy: boolean,
+  maxSlippagePercent: number
+): number {
+  const levels = isBuy ? orderBook.levels[1] : orderBook.levels[0];
+  
+  if (!levels || levels.length === 0) return 0;
+
+  const sortedLevels = [...levels].sort((a, b) => {
+    const priceA = parseFloat(a.px);
+    const priceB = parseFloat(b.px);
+    return isBuy ? priceA - priceB : priceB - priceA;
+  });
+
+  const bestPrice = parseFloat(sortedLevels[0].px);
+  let cumulativeVolume = 0;
+  let totalCost = 0;
+
+  for (const level of sortedLevels) {
+    const levelPrice = parseFloat(level.px);
+    const levelSize = parseFloat(level.sz);
+    
+    const newVolume = cumulativeVolume + levelSize;
+    const newCost = totalCost + (levelSize * levelPrice);
+    const avgPrice = newCost / newVolume;
+    const slippage = Math.abs((avgPrice - bestPrice) / bestPrice * 100);
+    
+    if (slippage > maxSlippagePercent) {
+      break;
+    }
+    
+    cumulativeVolume = newVolume;
+    totalCost = newCost;
+  }
+
+  return cumulativeVolume * 0.9; // Add 10% buffer
+}
