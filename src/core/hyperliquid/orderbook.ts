@@ -159,3 +159,58 @@ export function analyzeMarketDepth(orderBook: OrderBook): MarketDepthAnalysis {
   };
 }
 
+/**
+ * Check if market can handle a given volume without excessive slippage
+ */
+export function checkVolumeConstraints(
+  orderBook: OrderBook,
+  totalVolume: number,
+  isBuy: boolean,
+  maxSlippagePercent: number = 2.0,
+  maxVolumePercent: number = 10.0
+): {
+  canHandle: boolean;
+  reason?: string;
+  suggestedMaxVolume?: number;
+  marketDepth: MarketDepthAnalysis;
+} {
+  const marketDepth = analyzeMarketDepth(orderBook);
+  const relevantVolume = isBuy ? marketDepth.totalAskVolume : marketDepth.totalBidVolume;
+  
+  // Check volume constraint
+  const volumePercent = (totalVolume / relevantVolume) * 100;
+  if (volumePercent > maxVolumePercent) {
+    return {
+      canHandle: false,
+      reason: `Order volume (${volumePercent.toFixed(2)}%) exceeds market depth limit (${maxVolumePercent}%)`,
+      suggestedMaxVolume: relevantVolume * (maxVolumePercent / 100),
+      marketDepth
+    };
+  }
+
+  // Check slippage constraint
+  const slippageInfo = calculateSlippage(orderBook, totalVolume, isBuy);
+  if (!slippageInfo.wouldExecute) {
+    return {
+      canHandle: false,
+      reason: "Insufficient liquidity to execute order",
+      suggestedMaxVolume: relevantVolume * 0.8, // Conservative estimate
+      marketDepth
+    };
+  }
+
+  if (slippageInfo.slippagePercent > maxSlippagePercent) {
+    return {
+      canHandle: false,
+      reason: `Estimated slippage (${slippageInfo.slippagePercent.toFixed(2)}%) exceeds limit (${maxSlippagePercent}%)`,
+      suggestedMaxVolume: findMaxVolumeForSlippage(orderBook, isBuy, maxSlippagePercent),
+      marketDepth
+    };
+  }
+
+  return {
+    canHandle: true,
+    marketDepth
+  };
+}
+
