@@ -117,3 +117,45 @@ export function calculateSlippage(
     wouldExecute
   };
 }
+
+/**
+ * Analyze market depth for volume constraints
+ */
+export function analyzeMarketDepth(orderBook: OrderBook): MarketDepthAnalysis {
+  const [bids, asks] = orderBook.levels;
+  
+  if (!bids || !asks || bids.length === 0 || asks.length === 0) {
+    return {
+      totalBidVolume: 0,
+      totalAskVolume: 0,
+      bidDepth: 0,
+      askDepth: 0,
+      spread: 0,
+      spreadPercent: 0,
+      midPrice: 0
+    };
+  }
+
+  // Calculate total volumes
+  const totalBidVolume = bids.reduce((sum, level) => sum + parseFloat(level.sz), 0);
+  const totalAskVolume = asks.reduce((sum, level) => sum + parseFloat(level.sz), 0);
+  
+  // Get best prices
+  const bestBid = Math.max(...bids.map(level => parseFloat(level.px)));
+  const bestAsk = Math.min(...asks.map(level => parseFloat(level.px)));
+  
+  const spread = bestAsk - bestBid;
+  const midPrice = (bestBid + bestAsk) / 2;
+  const spreadPercent = (spread / midPrice) * 100;
+
+  return {
+    totalBidVolume,
+    totalAskVolume,
+    bidDepth: bids.length,
+    askDepth: asks.length,
+    spread,
+    spreadPercent,
+    midPrice
+  };
+}
+
