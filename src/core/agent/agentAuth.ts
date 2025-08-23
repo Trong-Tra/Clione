@@ -62,7 +62,6 @@ const createWalletSigner = (signer: ethers.JsonRpcSigner): WalletSigner => ({
     signer.signTypedData(domain, types, value),
 });
 
-// Main agent authorization function
 export async function authorizeAgent(
   useTestnet: boolean = true,
   agentName: string = "TradingAgent"

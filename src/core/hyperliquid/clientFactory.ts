@@ -1,8 +1,31 @@
 import { ethers } from "ethers";
 import * as hl from "@nktkas/hyperliquid";
-import { ARBITRUM_SEPOLIA_TESTNET, ARBITRUM_ONE_MAINNET } from "../../common";
 
 // Network configurations
+const ARBITRUM_ONE_MAINNET = {
+  chainId: "0xa4b1",
+  chainName: "Arbitrum One",
+  nativeCurrency: {
+    name: "Ether",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  rpcUrls: ["https://arbitrum-one-rpc.publicnode.com"],
+  blockExplorerUrls: ["https://arbiscan.io"],
+} as const;
+
+const ARBITRUM_SEPOLIA_TESTNET = {
+  chainId: "0x66eee",
+  chainName: "Arbitrum Sepolia Testnet", 
+  nativeCurrency: {
+    name: "Sepolia Ether",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  rpcUrls: ["https://sepolia-rollup.arbitrum.io/rpc"],
+  blockExplorerUrls: ["https://sepolia.arbiscan.io/"],
+} as const;
+
 const NETWORKS = {
   testnet: ARBITRUM_SEPOLIA_TESTNET,
   mainnet: ARBITRUM_ONE_MAINNET,

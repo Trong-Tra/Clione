@@ -1,8 +1,6 @@
 import { ethers } from "ethers";
-import * as hl from "@nktkas/hyperliquid";
 import { createExchangeClient, createInfoClient, createHyperliquidClients } from "../hyperliquid/clientFactory";
 
-// Types
 export interface TWAPOrderParams {
     asset: number;
     isBuy: boolean;
@@ -28,13 +26,27 @@ export interface OrderResult {
 export async function placeOrder(
     privateKey: string, 
     orderParams: TWAPOrderParams, 
-    useTestnet: boolean = true
+    useTestnet: boolean = true,
+    marketType: "PERP" | "SPOT" = "PERP"
 ): Promise<OrderResult> {
     try {
         const wallet = new ethers.Wallet(privateKey);
-        const exchangeClient = createExchangeClient(wallet, { useTestnet });
         
-        const result = await exchangeClient.order({
+        // Create exchange client with agent wallet
+        const exchangeClient = createExchangeClient(wallet, { 
+            useTestnet
+        });
+        
+        console.log(`📤 Placing ${marketType} order:`, {
+            asset: orderParams.asset,
+            isBuy: orderParams.isBuy,
+            price: orderParams.price,
+            size: orderParams.size,
+            timeInForce: orderParams.timeInForce,
+            agentWallet: wallet.address,
+        });
+        
+        const orderRequest: any = {
             orders: [{
                 a: orderParams.asset,
                 b: orderParams.isBuy,
@@ -48,7 +60,23 @@ export async function placeOrder(
                 }
             }],
             grouping: "na",
-        });
+        };
+
+        console.log(`📝 Order request:`, JSON.stringify(orderRequest, null, 2));
+        
+        const result = await exchangeClient.order(orderRequest);
+        
+        const statuses = result.response?.data?.statuses;
+        if (statuses && Array.isArray(statuses) && statuses.length > 0) {
+            const status = statuses[0];
+            
+            if ('error' in status && status.error) {
+                return {
+                    success: false,
+                    error: String(status.error)
+                };
+            }
+        }
         
         return {
             success: true,
@@ -123,25 +151,79 @@ export async function executeTWAP(
     };
 }
 
-// Get market info for a specific asset
+// Get market info for a specific asset and market type
 export async function getMarketInfo(
     asset: string,
-    useTestnet: boolean = true
+    useTestnet: boolean = true,
+    marketType: "PERP" | "SPOT" = "PERP"
 ): Promise<any> {
     const infoClient = createInfoClient({ useTestnet });
     
     try {
-        const meta = await infoClient.meta();
-        const universe = meta.universe;
-        
-        const assetInfo = universe.find(u => u.name === asset);
-        if (!assetInfo) {
-            throw new Error(`Asset ${asset} not found`);
+        if (marketType === "SPOT") {
+            // For SPOT markets, use spotMeta endpoint
+            const spotMeta = await infoClient.spotMeta();
+            
+            if (!spotMeta || !spotMeta.tokens || !spotMeta.universe) {
+                throw new Error(`No spot meta data available`);
+            }
+            
+            // Find the token by name
+            let tokenId: number | null = null;
+            for (const [id, tokenInfo] of Object.entries(spotMeta.tokens)) {
+                if (tokenInfo.name === asset) {
+                    tokenId = parseInt(id);
+                    break;
+                }
+            }
+            
+            if (tokenId === null) {
+                throw new Error(`Spot token ${asset} not found`);
+            }
+            
+            // Find the spot pair universe index where this token appears
+            let spotAssetId: number | null = null;
+            let spotInfo = null;
+            for (let i = 0; i < spotMeta.universe.length; i++) {
+                const universeInfo = spotMeta.universe[i];
+                if (universeInfo.tokens && 
+                    (universeInfo.tokens[0] === tokenId || universeInfo.tokens[1] === tokenId)) {
+                    spotAssetId = 10000 + i;
+                    spotInfo = universeInfo;
+                    break;
+                }
+            }
+            
+            if (spotAssetId === null || !spotInfo) {
+                throw new Error(`Spot pair for ${asset} not found in universe`);
+            }
+            
+            console.log(`📊 Found SPOT market for ${asset}: tokenId=${tokenId}, universeIndex=${spotAssetId - 10000}, spotAssetId=${spotAssetId}`);
+            
+            // Get the token info for decimals
+            const tokenInfo = (spotMeta.tokens as any)[tokenId.toString()];
+            
+            return {
+                name: asset,
+                assetInfo: { index: spotAssetId },
+                szDecimals: tokenInfo?.szDecimals || 0
+            };
+        } else {
+            // For PERP markets, use regular meta endpoint
+            const meta = await infoClient.meta();
+            const universe = meta.universe;
+            
+            const assetInfo = universe.find(u => u.name === asset);
+            if (!assetInfo) {
+                throw new Error(`PERP asset ${asset} not found`);
+            }
+            
+            console.log(`📊 Found PERP market for ${asset}:`, assetInfo);
+            
+            return assetInfo;
         }
-        
-        return assetInfo;
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        throw new Error(`Failed to get market info: ${errorMessage}`);
+        throw new Error(`Failed to get ${marketType} market info: ${errorMessage}`);
     }
 }

@@ -1,4 +1,3 @@
-import * as hl from "@nktkas/hyperliquid";
 import { createInfoClient } from "./clientFactory";
 
 export interface OrderBookLevel {
@@ -34,20 +33,37 @@ export interface MarketDepthAnalysis {
  */
 export async function fetchOrderBook(
   asset: string,
-  useTestnet: boolean = true
+  useTestnet: boolean = true,
+  marketType: "SPOT" | "PERP" = "PERP"
 ): Promise<OrderBook | null> {
   try {
     const infoClient = createInfoClient({ useTestnet });
     
-    const l2Response = await infoClient.l2Book({ coin: asset });
+    // Format asset name based on market type
+    let formattedAsset = asset;
+    if (marketType === "SPOT") {
+      // For SPOT markets, the SDK expects "ASSET/USDC" format
+      // Check if it's already in the correct format
+      if (!asset.includes("/") && !asset.includes("-SPOT")) {
+        formattedAsset = `${asset}/USDC`;
+      } else if (asset.includes("-SPOT")) {
+        // Handle legacy format by converting PURR-SPOT to PURR/USDC
+        formattedAsset = asset.replace("-SPOT", "/USDC");
+      }
+    }
+    // For PERP markets, use just the token name (e.g., "PURR")
+    
+    console.log(`📊 Fetching ${marketType} orderbook for ${asset} → ${formattedAsset}`);
+    
+    const l2Response = await infoClient.l2Book({ coin: formattedAsset });
     
     if (!l2Response || !l2Response.levels) {
-      console.error(`No order book data available for ${asset}`);
+      console.error(`No order book data available for ${formattedAsset} (${marketType})`);
       return null;
     }
 
     return {
-      coin: asset,
+      coin: formattedAsset,
       levels: l2Response.levels,
       time: Date.now()
     };

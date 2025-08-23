@@ -6,6 +6,7 @@ export * from "./agent/agentAuth";
 
 // Export trading functions and types
 export * from "./trade/placeTWAP";
+export * from "./trade/vwapEnhancedTWAP";
 
 // Re-export commonly used types for convenience
 export type { Wallet } from "ethers";
