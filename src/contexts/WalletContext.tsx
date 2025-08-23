@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { ethers } from "ethers";
 import { authorizeAgent, AgentWallet } from "@/core/agent/agentAuth";
 import { getNetworkConfig } from "@/core/hyperliquid/clientFactory";
+import { useNetwork } from "./NetworkContext";
 
 export interface WalletState {
   isConnected: boolean;
@@ -38,10 +39,11 @@ export function useWallet() {
 
 interface WalletProviderProps {
   children: ReactNode;
-  useTestnet?: boolean;
 }
 
-export function WalletProvider({ children, useTestnet = true }: WalletProviderProps) {
+export function WalletProvider({ children }: WalletProviderProps) {
+  const { isTestnet } = useNetwork();
+
   const [walletState, setWalletState] = useState<WalletState>({
     isConnected: false,
     address: null,
@@ -55,7 +57,7 @@ export function WalletProvider({ children, useTestnet = true }: WalletProviderPr
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const targetNetwork = getNetworkConfig(useTestnet);
+  const targetNetwork = getNetworkConfig(isTestnet());
   const targetChainId = parseInt(targetNetwork.chainId);
 
   // Check if wallet is already connected
@@ -225,7 +227,7 @@ export function WalletProvider({ children, useTestnet = true }: WalletProviderPr
     setError(null);
 
     try {
-      const result = await authorizeAgent(useTestnet, "Nami Agent");
+      const result = await authorizeAgent(isTestnet(), "Nami Agent");
 
       setWalletState((prev) => ({
         ...prev,
