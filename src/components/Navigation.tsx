@@ -3,11 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import NavWallet from "./NavWallet";
+import NavWallet from "./ui/NavWallet";
+import NetworkToggle from "./ui/NetworkToggle";
+import { useNetwork } from "@/contexts/NetworkContext";
 
 export default function Navigation() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isTestnet } = useNetwork();
+  const currentlyTestnet = isTestnet();
 
   const navItems = [
     {
@@ -75,9 +79,17 @@ export default function Navigation() {
 
           {/* Status Indicator */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Network Toggle - only show on live trading page */}
+            {pathname === "/" && <NetworkToggle />}
+            
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-green-400 text-sm">Mainnet Data</span>
+              <span className="text-green-400 text-sm">
+                {pathname === "/simulation" 
+                  ? "Mainnet Data" 
+                  : `${currentlyTestnet ? "Testnet" : "Mainnet"} Data`
+                }
+              </span>
             </div>
 
             {pathname === "/simulation" && (
