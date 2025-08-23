@@ -456,57 +456,12 @@ Are you sure you want to continue?`;
       {/* Navigation */}
       <Navigation />
 
-      {/* Live Trading Header */}
-      <div className="bg-gradient-to-r from-green-900/20 to-blue-900/20 border-b border-gray-800 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Live Trading</h1>
-              <p className="text-sm text-gray-300">
-                Execute real TWAP orders with wallet connection
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            {activeTWAP && (
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-green-400 text-sm font-medium">
-                  TWAP Active: {activeTWAP.asset} {activeTWAP.side}
-                </span>
-                <button
-                  onClick={handleStopTWAP}
-                  className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
-                >
-                  Stop
-                </button>
-              </div>
-            )}
-
-            <div className="text-sm text-gray-400">Mainnet Data • Real Trading</div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Layout: Chart | Configuration */}
-      <div className="flex h-[calc(100vh-120px)]">
+      <div className="flex h-[calc(100vh-80px)]">
         {/* Chart Section - 4/5 width */}
         <div className="flex-1 w-4/5 flex flex-col">
-          {/* Chart Header */}
-          <div className="p-4 pb-2">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="text-xl font-semibold text-white">
-                {selectedCoin} {selectedMarketType} Chart
-              </div>
-              <div className="text-sm text-gray-400">
-                Live market data from Hyperliquid {isTestnet() ? "Testnet" : "Mainnet"}
-              </div>
-            </div>
-          </div>
-
           {/* Chart - Top Half */}
-          <div className="flex-1 px-4 pb-2">
+          <div className="flex-1 p-4 pb-2">
             <CandleChart
               coin={selectedCoin}
               interval={selectedInterval}
@@ -522,9 +477,32 @@ Are you sure you want to continue?`;
           {/* Position History & Controls - Bottom Half */}
           <div className="h-1/2 p-4 pt-2">
             <div className="bg-gray-900 rounded-lg p-4 h-full">
-              <h2 className="text-xl font-bold text-white mb-4">
-                Live Execution Status & Order History
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-white">
+                  Live Execution Status & Order History
+                </h2>
+                
+                {/* TWAP Status Controls */}
+                <div className="flex items-center space-x-4">
+                  {activeTWAP && (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-green-400 text-sm font-medium">
+                        TWAP Active: {activeTWAP.asset} {activeTWAP.side}
+                      </span>
+                      <button
+                        onClick={handleStopTWAP}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+                      >
+                        Stop
+                      </button>
+                    </div>
+                  )}
+                  <div className="text-sm text-gray-400">
+                    {isTestnet() ? "Testnet" : "Mainnet"} Data • Real Trading
+                  </div>
+                </div>
+              </div>
 
               {/* Asset Rounding Information */}
               {assetRoundingInfo && (

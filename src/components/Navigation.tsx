@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import NavWallet from "./ui/NavWallet";
 import NetworkToggle from "./ui/NetworkToggle";
@@ -25,9 +26,9 @@ export default function Navigation() {
       description: "Test VWAP strategies on real market data",
     },
     {
-      name: "Research",
-      href: "/research",
-      description: "Algorithm comparison and backtesting",
+      name: "Docs",
+      href: "/docs",
+      description: "Documentation and guides",
     },
   ];
 
@@ -41,54 +42,51 @@ export default function Navigation() {
   return (
     <nav className="bg-gray-900 border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-3">
-              <div>
-                <h1 className="text-xl font-bold text-white">ShieldTWAP</h1>
-                <p className="text-xs text-gray-400">VWAP-Enhanced Trading</p>
-              </div>
+        <div className="flex items-center justify-between h-20">
+          {/* Logo - Far Left */}
+          <div className="flex items-center flex-shrink-0">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="ShieldTWAP Logo"
+                width={72}
+                height={72}
+                className="rounded-lg hover:scale-105 transition-transform duration-200"
+              />
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
+          {/* Navigation Tabs - Center */}
+          <div className="hidden md:flex items-center justify-center flex-1">
+            <div className="flex items-baseline space-x-8">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`group relative px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  className={`relative px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     isActive(item.href)
                       ? "bg-blue-600 text-white"
                       : "text-gray-300 hover:bg-gray-700 hover:text-white"
                   }`}
                 >
                   <span className="font-medium">{item.name}</span>
-
-                  {/* Tooltip */}
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
-                    {item.description}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
-                  </div>
                 </Link>
               ))}
             </div>
           </div>
 
-          {/* Status Indicator */}
-          <div className="hidden md:flex items-center space-x-4">
-            {/* Network Toggle - only show on live trading page */}
-            {pathname === "/" && <NetworkToggle />}
-            
+          {/* Controls - Far Right */}
+          <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
+            {/* Network Toggle - always show */}
+            <NetworkToggle />
+
+            {/* Status Indicator */}
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-green-400 text-sm">
-                {pathname === "/simulation" 
-                  ? "Mainnet Data" 
-                  : `${currentlyTestnet ? "Testnet" : "Mainnet"} Data`
-                }
+                {pathname === "/simulation"
+                  ? "Mainnet Data"
+                  : `${currentlyTestnet ? "Testnet" : "Mainnet"} Data`}
               </span>
             </div>
 

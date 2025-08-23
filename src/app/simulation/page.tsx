@@ -606,55 +606,12 @@ export default function SimulationPage() {
       {/* Navigation */}
       <Navigation />
 
-      {/* Simulation Header */}
-      <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-b border-gray-800 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div>
-              <h1 className="text-2xl font-bold text-white">VWAP Simulation</h1>
-              <p className="text-sm text-gray-300">
-                Test VWAP strategies with historical data - risk free
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            {simulationActive && (
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-blue-400 text-sm font-medium">Simulation Running</span>
-                <button
-                  onClick={handleStopSimulation}
-                  className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
-                >
-                  Stop
-                </button>
-              </div>
-            )}
-
-            <div className="text-sm text-gray-400">Live Market Data • Real-Time Simulation</div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Layout: Chart | Configuration */}
-      <div className="flex h-[calc(100vh-120px)]">
+      <div className="flex h-[calc(100vh-80px)]">
         {/* Chart Section - 4/5 width */}
         <div className="flex-1 w-4/5 flex flex-col">
-          {/* Chart Header */}
-          <div className="p-4 pb-2">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="text-xl font-semibold text-white">
-                {selectedCoin} {selectedMarketType} Simulation Chart
-              </div>
-              <div className="text-sm text-gray-400">
-                Backtesting VWAP trading strategies using {isTestnet() ? "testnet" : "mainnet"} data
-              </div>
-            </div>
-          </div>
-
           {/* Chart - Top Half */}
-          <div className="flex-1 px-4 pb-2">
+          <div className="flex-1 p-4 pb-2">
             <CandleChart
               coin={selectedCoin}
               interval={selectedInterval}
@@ -672,14 +629,32 @@ export default function SimulationPage() {
             <div className="bg-gray-900 rounded-lg p-4 h-full">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-white">Simulation Results</h2>
-                {simulationConfig && (
-                  <button
-                    onClick={resetSimulation}
-                    className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
-                  >
-                    Reset
-                  </button>
-                )}
+
+                <div className="flex items-center space-x-4">
+                  {simulationActive && (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      <span className="text-blue-400 text-sm font-medium">Simulation Running</span>
+                      <button
+                        onClick={handleStopSimulation}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+                      >
+                        Stop
+                      </button>
+                    </div>
+                  )}
+                  <div className="text-sm text-gray-400">
+                    Live Market Data • Real-Time Simulation
+                  </div>
+                  {simulationConfig && (
+                    <button
+                      onClick={resetSimulation}
+                      className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
               </div>
 
               {simulationConfig ? (
