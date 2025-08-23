@@ -458,20 +458,22 @@ Are you sure you want to continue?`;
 
       {/* Main Layout: Chart | Configuration */}
       <div className="flex h-[calc(100vh-80px)]">
-        {/* Chart Section - 4/5 width */}
-        <div className="flex-1 w-4/5 flex flex-col">
+        {/* Chart Section - 3/4 width */}
+        <div className="flex-1 w-3/4 flex flex-col overflow-hidden">
           {/* Chart - Top Half */}
-          <div className="flex-1 p-4 pb-2">
-            <CandleChart
-              coin={selectedCoin}
-              interval={selectedInterval}
-              onIntervalChange={handleIntervalChange}
-              showVWAP={true}
-              vwapPeriod={20}
-              network={isTestnet() ? "testnet" : "mainnet"}
-              marketType={selectedMarketType}
-              onDataUpdate={handleChartDataUpdate}
-            />
+          <div className="flex-1 p-4 pb-2 overflow-hidden">
+            <div className="w-full h-full bg-gray-900 rounded-lg overflow-hidden">
+              <CandleChart
+                coin={selectedCoin}
+                interval={selectedInterval}
+                onIntervalChange={handleIntervalChange}
+                showVWAP={true}
+                vwapPeriod={20}
+                network={isTestnet() ? "testnet" : "mainnet"}
+                marketType={selectedMarketType}
+                onDataUpdate={handleChartDataUpdate}
+              />
+            </div>
           </div>
 
           {/* Position History & Controls - Bottom Half */}
@@ -641,8 +643,8 @@ Are you sure you want to continue?`;
           </div>
         </div>
 
-        {/* Configuration Section - 1/5 width */}
-        <div className="w-1/5 border-l border-gray-800 p-4">
+        {/* Configuration Section - 1/4 width */}
+        <div className="w-1/4 border-l border-gray-800 p-4">
           <OrderConfiguration
             onConfigSubmit={handleConfigSubmit}
             currentPrice={currentPrice}
