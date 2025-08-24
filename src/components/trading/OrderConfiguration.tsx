@@ -32,6 +32,11 @@ interface OrderConfigurationProps {
   onMarketTypeChange: (marketType: MarketType) => void;
   isExecuting?: boolean;
   walletReady?: boolean;
+  assetRoundingInfo?: {
+    asset: string;
+    decimals: number;
+    example: string;
+  } | null;
 }
 
 export default function OrderConfiguration({
@@ -45,6 +50,7 @@ export default function OrderConfiguration({
   onMarketTypeChange,
   isExecuting = false,
   walletReady = true,
+  assetRoundingInfo,
 }: OrderConfigurationProps) {
   const [isAdvanced, setIsAdvanced] = useState(false);
   const { isTestnet } = useNetwork();
@@ -161,14 +167,14 @@ export default function OrderConfiguration({
   };
 
   return (
-    <div className="bg-gray-900 rounded-lg p-6">
-      <h2 className="text-xl font-bold text-white mb-4">TWAP Configuration</h2>
+    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">TWAP Configuration</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Token and Market Type Selection */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Asset Selection</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Asset Selection</label>
             <TokenSelector
               selectedToken={selectedToken}
               onTokenChange={onTokenChange}
@@ -177,7 +183,18 @@ export default function OrderConfiguration({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Market Type</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">Market Type</label>
+              {assetRoundingInfo && (
+                <div className="text-xs text-gray-600 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                  <span className="text-amber-600 font-medium">
+                    {assetRoundingInfo.decimals === 0
+                      ? "Whole numbers"
+                      : `${assetRoundingInfo.decimals} decimals`}
+                  </span>
+                </div>
+              )}
+            </div>
             <MarketTypeSelector
               selectedType={selectedMarketType}
               onTypeChange={onMarketTypeChange}
@@ -189,10 +206,10 @@ export default function OrderConfiguration({
         <div className="space-y-4">
           {/* Side Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Order Side</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Order Side</label>
             <select
               {...register("side")}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+              className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="BUY">BUY</option>
               <option value="SELL">SELL</option>
@@ -202,58 +219,58 @@ export default function OrderConfiguration({
           {/* Size & Orders */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Total Size</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Total Size</label>
               <input
                 type="number"
                 {...register("totalSize", { required: "Total size is required", min: 1 })}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="1000"
               />
               {errors.totalSize && (
-                <p className="text-red-400 text-xs mt-1">{errors.totalSize.message}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.totalSize.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Total Orders</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Total Orders</label>
               <input
                 type="number"
                 {...register("totalOrders", { required: "Total orders is required", min: 1 })}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="10"
               />
               {errors.totalOrders && (
-                <p className="text-red-400 text-xs mt-1">{errors.totalOrders.message}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.totalOrders.message}</p>
               )}
             </div>
           </div>
 
           {/* Max Slippage */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Max Slippage (%)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Max Slippage (%)</label>
             <input
               type="number"
               step="0.1"
               {...register("maxSlippage", { required: "Max slippage is required", min: 0.1 })}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+              className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="2.0"
             />
             {errors.maxSlippage && (
-              <p className="text-red-400 text-xs mt-1">{errors.maxSlippage.message}</p>
+              <p className="text-red-500 text-xs mt-1">{errors.maxSlippage.message}</p>
             )}
           </div>
         </div>
 
         {/* Preset Buttons */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-300">Presets</label>
+          <label className="block text-sm font-medium text-gray-700">Presets</label>
           <div className="grid grid-cols-3 gap-2">
             {presetConfigs.map((preset) => (
               <button
                 key={preset.name}
                 type="button"
                 onClick={() => applyPreset(preset)}
-                className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
+                className="px-3 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded text-sm transition-colors"
               >
                 {preset.name}
               </button>
@@ -268,100 +285,100 @@ export default function OrderConfiguration({
             id="advanced"
             checked={isAdvanced}
             onChange={(e) => setIsAdvanced(e.target.checked)}
-            className="mr-2"
+            className="mr-2 text-blue-500 focus:ring-blue-500"
           />
-          <label htmlFor="advanced" className="text-sm text-gray-300">
+          <label htmlFor="advanced" className="text-sm text-gray-700">
             Advanced Settings
           </label>
         </div>
 
         {/* Advanced Configuration */}
         {isAdvanced && (
-          <div className="space-y-4 p-4 bg-gray-800 rounded">
+          <div className="space-y-4 p-4 bg-gray-50 rounded border border-gray-200">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">VWAP Alpha</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">VWAP Alpha</label>
                 <input
                   type="number"
                   step="0.1"
                   {...register("vwapAlpha")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   VWAP Period (candles)
                 </label>
                 <input
                   type="number"
                   {...register("vwapPeriod")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Time Interval (s)
                 </label>
                 <input
                   type="number"
                   {...register("timeInterval")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Max Slippage (%)
                 </label>
                 <input
                   type="number"
                   step="0.1"
                   {...register("maxSlippage")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Min Multiplier
                 </label>
                 <input
                   type="number"
                   step="0.1"
                   {...register("minMultiplier")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Max Multiplier
                 </label>
                 <input
                   type="number"
                   step="0.1"
                   {...register("maxMultiplier")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             {!isSimulation && (
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Max Market Participation (%)
                 </label>
                 <input
                   type="number"
                   step="0.1"
                   {...register("maxParticipation")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             )}
@@ -369,26 +386,26 @@ export default function OrderConfiguration({
         )}
 
         {/* Estimation Panel */}
-        <div className="bg-gray-800 rounded p-4">
-          <h3 className="text-lg font-medium text-white mb-3">Order Estimation</h3>
+        <div className="bg-gray-50 border border-gray-200 rounded p-4">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">Order Estimation</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <div className="text-gray-400">Avg Order Size</div>
-              <div className="text-white font-mono">{estimatedOrderSize.toFixed(2)}</div>
+              <div className="text-gray-600">Avg Order Size</div>
+              <div className="text-gray-900 font-mono">{estimatedOrderSize.toFixed(2)}</div>
             </div>
             <div>
-              <div className="text-gray-400">Est. Duration</div>
-              <div className="text-white font-mono">{estimatedDuration.toFixed(1)}m</div>
+              <div className="text-gray-600">Est. Duration</div>
+              <div className="text-gray-900 font-mono">{estimatedDuration.toFixed(1)}m</div>
             </div>
             {currentPrice && (
               <>
                 <div>
-                  <div className="text-gray-400">Current Price</div>
-                  <div className="text-white font-mono">${currentPrice.toFixed(6)}</div>
+                  <div className="text-gray-600">Current Price</div>
+                  <div className="text-gray-900 font-mono">${currentPrice.toFixed(6)}</div>
                 </div>
                 <div>
-                  <div className="text-gray-400">Est. Total Cost</div>
-                  <div className="text-white font-mono">${estimatedCost.toFixed(2)}</div>
+                  <div className="text-gray-600">Est. Total Cost</div>
+                  <div className="text-gray-900 font-mono">${estimatedCost.toFixed(2)}</div>
                 </div>
               </>
             )}
@@ -401,12 +418,12 @@ export default function OrderConfiguration({
           disabled={isExecuting || (!walletReady && !isSimulation)}
           className={`w-full font-medium py-3 px-4 rounded transition-colors ${
             isExecuting
-              ? "bg-gray-600 text-gray-300 cursor-not-allowed"
+              ? "bg-gray-400 text-gray-600 cursor-not-allowed"
               : !walletReady && !isSimulation
-              ? "bg-gray-600 text-gray-300 cursor-not-allowed"
+              ? "bg-gray-400 text-gray-600 cursor-not-allowed"
               : isSimulation
-              ? "bg-blue-600 hover:bg-blue-700 text-white"
-              : "bg-green-600 hover:bg-green-700 text-white"
+              ? "bg-blue-400 hover:bg-blue-500 text-white"
+              : "bg-green-500 hover:bg-green-600 text-white"
           }`}
         >
           {isExecuting
@@ -420,7 +437,7 @@ export default function OrderConfiguration({
 
         {/* Warning note for live trading */}
         {!isSimulation && !isExecuting && (
-          <p className="text-xs text-yellow-400 mt-2 text-center">
+          <p className="text-xs text-yellow-600 mt-2 text-center">
             ⚠️ Clicking "Start Live TWAP Execution" will begin real trading with real funds
           </p>
         )}
@@ -430,7 +447,7 @@ export default function OrderConfiguration({
           <button
             type="button"
             onClick={onStopTWAP}
-            className="w-full font-medium py-2 px-4 rounded transition-colors bg-red-600 hover:bg-red-700 text-white mt-2"
+            className="w-full font-medium py-2 px-4 rounded transition-colors bg-red-500 hover:bg-red-600 text-white mt-2"
           >
             🛑 Stop TWAP Execution
           </button>
