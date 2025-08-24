@@ -40,7 +40,7 @@ export default function Navigation() {
   };
 
   return (
-    <nav className="bg-gray-900 border-b border-gray-800">
+    <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo - Far Left */}
@@ -65,8 +65,8 @@ export default function Navigation() {
                   href={item.href}
                   className={`relative px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     isActive(item.href)
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                      ? "bg-blue-400 text-white shadow-sm"
+                      : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                   }`}
                 >
                   <span className="font-medium">{item.name}</span>
@@ -83,7 +83,7 @@ export default function Navigation() {
             {/* Status Indicator */}
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-green-400 text-sm">
+              <span className="text-green-600 text-sm">
                 {pathname === "/simulation"
                   ? "Mainnet Data"
                   : `${currentlyTestnet ? "Testnet" : "Mainnet"} Data`}
@@ -93,7 +93,7 @@ export default function Navigation() {
             {pathname === "/simulation" && (
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-blue-400 text-sm">Simulation Mode</span>
+                <span className="text-blue-600 text-sm">Simulation Mode</span>
               </div>
             )}
 
@@ -105,7 +105,7 @@ export default function Navigation() {
           <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              className="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
             >
               <span className="sr-only">Open main menu</span>
               {mobileMenuOpen ? (

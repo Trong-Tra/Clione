@@ -8,11 +8,11 @@ export default function NetworkToggle() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm text-gray-400">Network:</span>
+      <span className="text-sm text-gray-600">Network:</span>
       <div className="relative">
         <button
           onClick={() => setIsTestnet(!currentlyTestnet)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white ${
             currentlyTestnet ? "bg-orange-500" : "bg-green-500"
           }`}
         >
@@ -25,7 +25,7 @@ export default function NetworkToggle() {
         <div className="absolute -bottom-6 left-0 right-0 text-center">
           <span
             className={`text-xs font-medium ${
-              currentlyTestnet ? "text-orange-400" : "text-green-400"
+              currentlyTestnet ? "text-orange-500" : "text-green-500"
             }`}
           >
             {currentlyTestnet ? "Testnet" : "Mainnet"}

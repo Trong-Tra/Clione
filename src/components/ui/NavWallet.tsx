@@ -65,7 +65,7 @@ export default function NavWallet() {
       <button
         onClick={() => (walletState.isConnected ? setShowDropdown(!showDropdown) : connectWallet())}
         disabled={isConnecting}
-        className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg transition-colors text-sm border border-gray-600"
+        className="flex items-center space-x-2 bg-blue-400 hover:bg-blue-500 text-white px-3 py-2 rounded-lg transition-colors text-sm border border-blue-500 shadow-sm"
       >
         <div className={`w-2 h-2 rounded-full ${getStatusColor()}`}></div>
         <span>
@@ -84,27 +84,27 @@ export default function NavWallet() {
 
       {/* Dropdown */}
       {showDropdown && walletState.isConnected && (
-        <div className="absolute right-0 mt-2 w-80 bg-gray-800 rounded-lg shadow-lg border border-gray-600 z-50">
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
           <div className="p-4 space-y-4">
             {/* Wallet Info */}
             <div>
-              <p className="text-sm text-gray-400">Wallet Address</p>
-              <p className="text-white font-mono text-sm">{walletState.address}</p>
+              <p className="text-sm text-gray-600">Wallet Address</p>
+              <p className="text-gray-900 font-mono text-sm">{walletState.address}</p>
             </div>
 
             {/* Status */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400">Status</p>
+                <p className="text-sm text-gray-600">Status</p>
                 <div className="flex items-center space-x-2">
                   <div className={`w-2 h-2 rounded-full ${getStatusColor()}`}></div>
-                  <span className="text-sm text-white">{getStatusText()}</span>
+                  <span className="text-sm text-gray-900">{getStatusText()}</span>
                 </div>
               </div>
               {!walletState.isCorrectNetwork && (
                 <button
                   onClick={switchToTargetNetwork}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-2 py-1 rounded"
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded"
                 >
                   Switch Network
                 </button>
@@ -113,10 +113,10 @@ export default function NavWallet() {
 
             {/* Network Info */}
             <div>
-              <p className="text-sm text-gray-400">Network</p>
+              <p className="text-sm text-gray-600">Network</p>
               <p
                 className={`text-sm ${
-                  walletState.isCorrectNetwork ? "text-green-400" : "text-red-400"
+                  walletState.isCorrectNetwork ? "text-green-600" : "text-red-600"
                 }`}
               >
                 {walletState.isCorrectNetwork
@@ -128,10 +128,10 @@ export default function NavWallet() {
             {/* Agent Status */}
             {walletState.isCorrectNetwork && (
               <div>
-                <p className="text-sm text-gray-400">Trading Agent</p>
+                <p className="text-sm text-gray-600">Trading Agent</p>
                 {walletState.isAgentAuthorized ? (
                   <div>
-                    <p className="text-green-400 font-mono text-sm">
+                    <p className="text-green-600 font-mono text-sm">
                       ✅ {formatAddress(walletState.agentWallet!.address)}
                     </p>
                     <p className="text-xs text-gray-500">Authorized and ready</p>
@@ -140,7 +140,7 @@ export default function NavWallet() {
                   <button
                     onClick={authorizeAgentWallet}
                     disabled={isAuthorizing}
-                    className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white text-sm py-2 px-3 rounded transition-colors"
+                    className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm py-2 px-3 rounded transition-colors"
                   >
                     {isAuthorizing ? "Authorizing..." : "Authorize Agent"}
                   </button>
@@ -150,15 +150,15 @@ export default function NavWallet() {
 
             {/* Error Display */}
             {error && (
-              <div className="bg-red-900/20 border border-red-500 rounded p-2">
-                <p className="text-red-400 text-xs">{error}</p>
+              <div className="bg-red-50 border border-red-200 rounded p-2">
+                <p className="text-red-600 text-xs">{error}</p>
               </div>
             )}
 
             {/* Disconnect */}
             <button
               onClick={disconnectWallet}
-              className="w-full bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-3 rounded transition-colors"
+              className="w-full bg-gray-500 hover:bg-gray-600 text-white text-sm py-2 px-3 rounded transition-colors"
             >
               Disconnect
             </button>
