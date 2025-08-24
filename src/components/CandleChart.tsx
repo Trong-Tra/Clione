@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { createChart, ColorType } from "lightweight-charts";
 import { initializeVWAP, updateVWAP, VWAPData } from "@/core/trade/vwapEnhancedTWAP";
-import { MarketType } from "./MarketTypeSelector";
+import { MarketType } from "./trading/MarketTypeSelector";
 
 type Candle = {
   time: number;
@@ -64,18 +64,21 @@ export default function CandleChart({
 
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: "#1a1a1a" },
-        textColor: "#d1d5db",
+        background: { type: ColorType.Solid, color: "#ffffff" },
+        textColor: "#374151",
+      },
+      watermark: {
+        visible: false,
       },
       grid: {
-        vertLines: { color: "#374151" },
-        horzLines: { color: "#374151" },
+        vertLines: { color: "#e5e7eb" },
+        horzLines: { color: "#e5e7eb" },
       },
       crosshair: {
         mode: 1,
       },
       rightPriceScale: {
-        borderColor: "#485563",
+        borderColor: "#d1d5db",
         autoScale: true,
         scaleMargins: {
           top: 0.1,
@@ -83,7 +86,7 @@ export default function CandleChart({
         },
       },
       timeScale: {
-        borderColor: "#485563",
+        borderColor: "#d1d5db",
         timeVisible: true,
         secondsVisible: false,
         rightOffset: 12,
@@ -92,7 +95,7 @@ export default function CandleChart({
         fixRightEdge: false,
       },
       width: chartContainerRef.current.clientWidth,
-      height: 500,
+      height: chartContainerRef.current.clientHeight || 300,
       handleScroll: {
         mouseWheel: true,
         pressedMouseMove: true,
@@ -155,6 +158,7 @@ export default function CandleChart({
       if (chartContainerRef.current && chart) {
         chart.applyOptions({
           width: chartContainerRef.current.clientWidth,
+          height: chartContainerRef.current.clientHeight || 300,
         });
       }
     };
@@ -392,21 +396,21 @@ export default function CandleChart({
   };
 
   return (
-    <div className="bg-gray-900 rounded-lg p-4">
+    <div className="bg-white border border-gray-200 rounded-lg p-4 h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center space-x-4">
-          <h2 className="text-xl font-bold text-white">{coin}/USDC</h2>
+          <h2 className="text-xl font-bold text-gray-900">{coin}/USDC</h2>
           {lastPrice && (
-            <div className="text-2xl font-mono text-green-400">${lastPrice.toFixed(6)}</div>
+            <div className="text-2xl font-mono text-green-600">${lastPrice.toFixed(6)}</div>
           )}
           {showVWAP && currentVWAP && (
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-400">VWAP({vwapPeriod}):</span>
-              <div className="text-lg font-mono text-yellow-400">${currentVWAP.toFixed(6)}</div>
+              <span className="text-sm text-gray-600">VWAP({vwapPeriod}):</span>
+              <div className="text-lg font-mono text-yellow-600">${currentVWAP.toFixed(6)}</div>
             </div>
           )}
-          {loading && <div className="text-blue-400 text-sm">Loading...</div>}
+          {loading && <div className="text-blue-600 text-sm">Loading...</div>}
         </div>
 
         {/* Interval Selector */}
@@ -417,8 +421,8 @@ export default function CandleChart({
               onClick={() => handleIntervalClick(value)}
               className={`px-3 py-1 text-sm rounded transition-colors ${
                 value === interval
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  ? "bg-blue-400 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               {label}
@@ -429,23 +433,19 @@ export default function CandleChart({
 
       {/* Error Display */}
       {error && (
-        <div className="bg-red-900/20 border border-red-500 rounded p-3 mb-4">
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="bg-red-50 border border-red-300 rounded p-3 mb-4">
+          <p className="text-red-700 text-sm">{error}</p>
         </div>
       )}
 
       {/* Chart Container */}
-      <div className="relative">
-        <div
-          ref={chartContainerRef}
-          className="w-full rounded border border-gray-700"
-          style={{ height: "500px" }}
-        />
+      <div className="relative flex-1 min-h-0">
+        <div ref={chartContainerRef} className="w-full h-full rounded border border-gray-300" />
 
         {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 bg-gray-900/80 flex items-center justify-center rounded">
-            <div className="text-white">
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded">
+            <div className="text-gray-900">
               <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mb-2"></div>
               <div>Loading {interval} candles...</div>
             </div>
@@ -454,24 +454,24 @@ export default function CandleChart({
       </div>
 
       {/* Stats */}
-      <div className="mt-4 grid grid-cols-4 gap-4 text-sm">
-        <div className="bg-gray-800 rounded p-2">
-          <div className="text-gray-400">Candles</div>
-          <div className="text-white font-mono">{candles.length}</div>
+      <div className="mt-4 grid grid-cols-4 gap-4 text-sm flex-shrink-0">
+        <div className="bg-gray-50 border border-gray-200 rounded p-2">
+          <div className="text-gray-600">Candles</div>
+          <div className="text-gray-900 font-mono">{candles.length}</div>
         </div>
-        <div className="bg-gray-800 rounded p-2">
-          <div className="text-gray-400">Interval</div>
-          <div className="text-white font-mono">{interval}</div>
+        <div className="bg-gray-50 border border-gray-200 rounded p-2">
+          <div className="text-gray-600">Interval</div>
+          <div className="text-gray-900 font-mono">{interval}</div>
         </div>
-        <div className="bg-gray-800 rounded p-2">
-          <div className="text-gray-400">Last Update</div>
-          <div className="text-white font-mono">
+        <div className="bg-gray-50 border border-gray-200 rounded p-2">
+          <div className="text-gray-600">Last Update</div>
+          <div className="text-gray-900 font-mono">
             {candles.length > 0 ? new Date().toLocaleTimeString() : "-"}
           </div>
         </div>
-        <div className="bg-gray-800 rounded p-2">
-          <div className="text-gray-400">Source</div>
-          <div className="text-green-400 font-mono">Mainnet</div>
+        <div className="bg-gray-50 border border-gray-200 rounded p-2">
+          <div className="text-gray-600">Source</div>
+          <div className="text-green-600 font-mono">Mainnet</div>
         </div>
       </div>
     </div>
