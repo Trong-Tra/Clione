@@ -5,6 +5,9 @@
  * to protect against unexpected market conditions during TWAP execution.
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prefer-const */
 import { VWAPEnhancedConfig, CandleData } from './vwapEnhancedTWAP';
 import { fetchOrderBook } from '../hyperliquid/orderbook';
 

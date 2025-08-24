@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { createChart, ColorType } from "lightweight-charts";
-import { initializeVWAP, updateVWAP, VWAPData } from "@/core/trade/vwapEnhancedTWAP";
+import { VWAPData } from "@/core/trade/vwapEnhancedTWAP";
 import { MarketType } from "./trading/MarketTypeSelector";
 
 type Candle = {
@@ -38,9 +38,13 @@ export default function CandleChart({
   marketType = "PERP", // Default to PERP
 }: CandleChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const chartRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const candleSeriesRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const volumeSeriesRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vwapSeriesRef = useRef<any>(null);
 
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -169,6 +173,7 @@ export default function CandleChart({
       window.removeEventListener("resize", handleResize);
       chart.remove();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [lastFetchTime, setLastFetchTime] = useState(0);
@@ -221,7 +226,7 @@ export default function CandleChart({
         }
 
         // Calculate VWAP data if enabled
-        let vwapData: Array<{ time: number; value: number }> = [];
+        const vwapData: Array<{ time: number; value: number }> = [];
         if (showVWAP && candleData.length > 0) {
           console.log(
             `🔍 Calculating Daily Session VWAP for ${candleData.length} candles (matching Hyperliquid)`
@@ -371,7 +376,7 @@ export default function CandleChart({
         setLoading(false);
       }
     },
-    [coin, showVWAP, vwapPeriod, onDataUpdate, lastFetchTime, network, marketType]
+    [coin, showVWAP, onDataUpdate, lastFetchTime, network, marketType]
   ); // Added lastFetchTime dependency
 
   // Initial data load and interval changes

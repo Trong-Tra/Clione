@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Navigation from "@/components/Navigation";
 
 export default function DocumentationPage() {
@@ -13,7 +14,13 @@ export default function DocumentationPage() {
         {/* Header with Logo */}
         <div className="text-center mb-16">
           <div className="mb-8">
-            <img src="/logo.png" alt="ShieldTWAP Logo" className="mx-auto h-32 w-auto" />
+            <Image 
+              src="/logo.png" 
+              alt="ShieldTWAP Logo" 
+              width={128}
+              height={128}
+              className="mx-auto rounded-lg"
+            />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Clione – Trading with the Rhythm of the Market
@@ -29,7 +36,7 @@ export default function DocumentationPage() {
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8 border border-blue-200">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                The Sea Angel's Wisdom
+                The Sea Angel&apos;s Wisdom
               </h2>
 
               <div className="prose prose-lg text-gray-700 space-y-4">
@@ -43,7 +50,7 @@ export default function DocumentationPage() {
                 <p>
                   Inspired by this, <strong>Clione</strong> is a trading execution tool built to
                   navigate the turbulent seas of financial markets. Instead of rushing headlong, it
-                  executes orders with measured rhythm (TWAP) while adapting to the market's natural
+                  executes orders with measured rhythm (TWAP) while adapting to the market&apos;s natural
                   flow (VWAP).
                 </p>
 
@@ -173,8 +180,8 @@ export default function DocumentationPage() {
             </div>
 
             <p className="text-gray-700">
-              The algorithm fetches real-time orderbook data from Hyperliquid's API to ensure orders
-              don't exceed available liquidity and stay within acceptable slippage thresholds.
+              The algorithm fetches real-time orderbook data from Hyperliquid&apos;s API to ensure orders
+              don&apos;t exceed available liquidity and stay within acceptable slippage thresholds.
             </p>
           </div>
         </section>
@@ -224,7 +231,7 @@ export default function DocumentationPage() {
           <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
             <h3 className="text-xl font-semibold text-blue-900 mb-4">🚀 Technical Innovation</h3>
             <p className="text-blue-800 mb-4">
-              <strong>Serverless Architecture:</strong> We've pioneered a completely client-side
+              <strong>Serverless Architecture:</strong> We&apos;ve pioneered a completely client-side
               trading system that operates without traditional backend infrastructure:
             </p>
             <ul className="space-y-2 text-blue-800">
@@ -298,7 +305,7 @@ export default function DocumentationPage() {
             <h3 className="text-xl font-semibold text-amber-900 mb-4">⚠️ Current Limitations</h3>
             <p className="text-amber-800 mb-4">
               <strong>VWAP Input Source:</strong> Currently locked to HLC3 (High-Low-Close/3)
-              calculation method to ensure compatibility with Hyperliquid's native VWAP
+              calculation method to ensure compatibility with Hyperliquid&apos;s native VWAP
               implementation.
             </p>
             <p className="text-amber-800">

@@ -5,7 +5,6 @@ import Navigation from "../../components/Navigation";
 import {
   VWAPEnhancedConfig,
   VWAPSimulationResult,
-  simulateVWAPEnhancedTWAP,
   calculateVWAPPerformance,
   CandleData,
   VWAPData,
@@ -14,8 +13,8 @@ import {
 import { getMarketInfo } from "../../core/trade/placeTWAP";
 import CandleChart from "@/components/CandleChart";
 import OrderConfiguration from "@/components/trading/OrderConfiguration";
-import { MarketType } from "@/components/trading/MarketTypeSelector";
-import { useWallet } from "@/contexts/WalletContext";
+import TokenSelector from "@/components/trading/TokenSelector";
+import MarketTypeSelector, { MarketType } from "@/components/trading/MarketTypeSelector";
 import { useNetwork } from "@/contexts/NetworkContext";
 import {
   fetchOrderBook,
@@ -57,7 +56,6 @@ export default function SimulationPage() {
   const [progress, setProgress] = useState(0);
 
   // Wallet state from context
-  const { walletState } = useWallet();
   const { isTestnet } = useNetwork();
 
   // Chart data state to ensure simulation uses same data as chart
@@ -86,13 +84,15 @@ export default function SimulationPage() {
       const result = await response.json();
 
       if (result.success && result.data) {
-        return result.data.map((candle: any) => ({
-          high: candle.high,
-          low: candle.low,
-          close: candle.close,
-          volume: candle.volume,
-          timestamp: candle.time * 1000 || Date.now(), // Convert time to timestamp in milliseconds
-        }));
+        return result.data.map(
+          (candle: { high: number; low: number; close: number; volume: number; time: number }) => ({
+            high: candle.high,
+            low: candle.low,
+            close: candle.close,
+            volume: candle.volume,
+            timestamp: candle.time * 1000 || Date.now(), // Convert time to timestamp in milliseconds
+          })
+        );
       }
       return [];
     } catch (error) {
@@ -117,7 +117,10 @@ export default function SimulationPage() {
   };
 
   // Handle chart data updates to ensure simulation uses same data
-  const handleChartDataUpdate = (candles: any[], vwapData?: VWAPData) => {
+  const handleChartDataUpdate = (
+    candles: { time: number; high: number; low: number; close: number; volume: number }[],
+    vwapData?: VWAPData
+  ) => {
     console.log(
       `🔄 Chart data updated: ${candles.length} candles, VWAP: ${
         vwapData?.vwap?.toFixed(6) || "N/A"
@@ -224,13 +227,15 @@ export default function SimulationPage() {
       // Display simulation preview
       const baseOrderSize = config.totalSize / config.totalOrders;
       const estimatedDuration = (config.totalOrders * config.timeInterval) / 60;
-      
+
       console.log("🔍 SIMULATION PREVIEW:");
       console.log(`  📦 Base order size: ${baseOrderSize.toFixed(6)} ${config.asset}`);
       console.log(`  🔢 Total orders: ${config.totalOrders}`);
       console.log(`  ⏱️ Interval: ${config.timeInterval}s between orders`);
       console.log(`  🕐 Est. duration: ${estimatedDuration.toFixed(1)} minutes`);
-      console.log(`  📈 VWAP will adjust each order size by ${config.minMultiplier}x - ${config.maxMultiplier}x`);
+      console.log(
+        `  📈 VWAP will adjust each order size by ${config.minMultiplier}x - ${config.maxMultiplier}x`
+      );
       console.log(`  ⚠️ Max slippage: ${config.maxSlippage}%`);
 
       // Start simulation using chart data
@@ -303,9 +308,10 @@ export default function SimulationPage() {
     }
 
     // Initialize VWAP from the core algorithm
-    const { initializeVWAP, updateVWAP, calculateVWAPOrderSize } = await import(
+    const { initializeVWAP, calculateVWAPOrderSize } = await import(
       "../../core/trade/vwapEnhancedTWAP"
     );
+    // eslint-disable-next-line prefer-const
     let currentVWAPData = initializeVWAP(historicalData);
 
     console.log(

@@ -438,7 +438,8 @@ export default function OrderConfiguration({
         {/* Warning note for live trading */}
         {!isSimulation && !isExecuting && (
           <p className="text-xs text-yellow-600 mt-2 text-center">
-            ⚠️ Clicking "Start Live TWAP Execution" will begin real trading with real funds
+            ⚠️ Clicking &quot;Start Live TWAP Execution&quot; will begin real trading with real
+            funds
           </p>
         )}
 

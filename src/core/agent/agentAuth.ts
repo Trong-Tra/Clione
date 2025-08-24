@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ethers } from "ethers";
 import * as hl from "@nktkas/hyperliquid";
 import { createExchangeClient, createExchangeClientWithSigner, getNetworkConfig } from "../hyperliquid/clientFactory";

@@ -5,6 +5,9 @@
  * better error handling, and comprehensive execution tracking.
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prefer-const */
 import { ethers } from "ethers";
 import {
   VWAPEnhancedConfig,

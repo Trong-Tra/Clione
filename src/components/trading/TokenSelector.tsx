@@ -65,6 +65,7 @@ function TokenImage({ symbol, size = "md", className = "" }: TokenImageProps) {
       {!imageLoaded && (
         <div className={`${sizeClasses[size]} bg-gray-200 rounded-full animate-pulse`} />
       )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={imageUrl}
         alt={`${symbol} logo`}
@@ -221,7 +222,7 @@ export default function TokenSelector({
               </div>
             ) : (
               <div className="p-4 text-center text-gray-600 text-sm">
-                No tokens found matching "{searchTerm}"
+                No tokens found matching &quot;{searchTerm}&quot;
               </div>
             )}
           </div>

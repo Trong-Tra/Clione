@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
-export type NetworkMode = 'mainnet' | 'testnet';
+export type NetworkMode = "mainnet" | "testnet";
 
 interface NetworkContextType {
   isTestnet: () => boolean;
@@ -26,35 +26,27 @@ interface NetworkProviderProps {
   defaultMode?: NetworkMode;
 }
 
-export function NetworkProvider({ children, defaultMode = 'testnet' }: NetworkProviderProps) {
+export function NetworkProvider({ children, defaultMode = "testnet" }: NetworkProviderProps) {
   const [networkMode, setNetworkMode] = useState<NetworkMode>(defaultMode);
 
   const getApiUrl = () => {
-    return networkMode === 'mainnet' 
-      ? 'https://api.hyperliquid.xyz/info'
-      : 'https://api.hyperliquid-testnet.xyz/info';
+    return networkMode === "mainnet"
+      ? "https://api.hyperliquid.xyz/info"
+      : "https://api.hyperliquid-testnet.xyz/info";
   };
 
   const getWebSocketUrl = () => {
-    return networkMode === 'mainnet'
-      ? 'wss://api.hyperliquid.xyz/ws'
-      : 'wss://api.hyperliquid-testnet.xyz/ws';
-  };
-
-  const isTestnet = () => {
-    return networkMode === 'testnet';
+    return networkMode === "mainnet"
+      ? "wss://api.hyperliquid.xyz/ws"
+      : "wss://api.hyperliquid-testnet.xyz/ws";
   };
 
   const value: NetworkContextType = {
-    isTestnet: () => networkMode === 'testnet',
-    setIsTestnet: (testnet: boolean) => setNetworkMode(testnet ? 'testnet' : 'mainnet'),
+    isTestnet: () => networkMode === "testnet",
+    setIsTestnet: (testnet: boolean) => setNetworkMode(testnet ? "testnet" : "mainnet"),
     getApiUrl,
     getWebSocketUrl,
   };
 
-  return (
-    <NetworkContext.Provider value={value}>
-      {children}
-    </NetworkContext.Provider>
-  );
+  return <NetworkContext.Provider value={value}>{children}</NetworkContext.Provider>;
 }
