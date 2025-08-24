@@ -150,6 +150,35 @@ export default function SimulationPage() {
     setSelectedMarketType(marketType);
   };
 
+  // Load asset rounding info when token or market type changes
+  useEffect(() => {
+    const loadAssetInfo = async () => {
+      try {
+        const { getMarketInfo } = await import("@/core");
+        const marketInfo = await getMarketInfo(selectedCoin, false, selectedMarketType); // Always use mainnet for simulation
+
+        if (marketInfo) {
+          // Use explicit null/undefined checking to handle 0 decimals correctly
+          const decimals =
+            marketInfo.szDecimals !== null && marketInfo.szDecimals !== undefined
+              ? marketInfo.szDecimals
+              : 4;
+
+          setAssetRoundingInfo({
+            asset: selectedCoin,
+            decimals: decimals,
+            roundingActive: true,
+          });
+        }
+      } catch (error) {
+        console.log("Could not load asset info for simulation:", error);
+        setAssetRoundingInfo(null);
+      }
+    };
+
+    loadAssetInfo();
+  }, [selectedCoin, selectedMarketType]);
+
   // Remove the getFullCoinSymbol function since we'll pass marketType separately
 
   const handleSimulationStart = async (config: TWAPConfig) => {
@@ -177,7 +206,7 @@ export default function SimulationPage() {
         vwapAlpha: config.vwapAlpha,
         maxMultiplier: config.maxMultiplier || 5.0,
         minMultiplier: config.minMultiplier || 0.1,
-        vwapPeriod: 50,
+        vwapPeriod: config.vwapPeriod, // Use form value instead of hardcoded
         asset: config.asset,
         side: config.side.toLowerCase() as "buy" | "sell",
       };
@@ -188,6 +217,21 @@ export default function SimulationPage() {
           chartVWAPData?.vwap?.toFixed(6) || "N/A"
         }`
       );
+      console.log(
+        `⚙️ VWAP Config: α=${config.vwapAlpha}, period=${config.vwapPeriod}, multipliers=${config.minMultiplier}-${config.maxMultiplier}`
+      );
+
+      // Display simulation preview
+      const baseOrderSize = config.totalSize / config.totalOrders;
+      const estimatedDuration = (config.totalOrders * config.timeInterval) / 60;
+      
+      console.log("🔍 SIMULATION PREVIEW:");
+      console.log(`  📦 Base order size: ${baseOrderSize.toFixed(6)} ${config.asset}`);
+      console.log(`  🔢 Total orders: ${config.totalOrders}`);
+      console.log(`  ⏱️ Interval: ${config.timeInterval}s between orders`);
+      console.log(`  🕐 Est. duration: ${estimatedDuration.toFixed(1)} minutes`);
+      console.log(`  📈 VWAP will adjust each order size by ${config.minMultiplier}x - ${config.maxMultiplier}x`);
+      console.log(`  ⚠️ Max slippage: ${config.maxSlippage}%`);
 
       // Start simulation using chart data
       await simulateRealTimeVWAP(vwapConfig);
@@ -602,17 +646,17 @@ export default function SimulationPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Navigation */}
       <Navigation />
 
       {/* Main Layout: Chart | Configuration */}
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex min-h-[calc(100vh-80px)]">
         {/* Chart Section - 3/4 width */}
-        <div className="flex-1 w-3/4 flex flex-col overflow-hidden">
+        <div className="flex-1 w-3/4 flex flex-col">
           {/* Chart - Top Half */}
-          <div className="flex-1 p-4 pb-2 overflow-hidden">
-            <div className="w-full h-full bg-gray-900 rounded-lg overflow-hidden">
+          <div className="flex-1 p-4 pb-2 min-h-[400px]">
+            <div className="w-full h-[400px] bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
               <CandleChart
                 coin={selectedCoin}
                 interval={selectedInterval}
@@ -627,10 +671,10 @@ export default function SimulationPage() {
           </div>
 
           {/* Simulation Results - Bottom Half */}
-          <div className="h-1/2 p-4 pt-2">
-            <div className="bg-gray-900 rounded-lg p-4 h-full">
+          <div className="flex-1 p-4 pt-2 min-h-[400px]">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">Simulation Results</h2>
+                <h2 className="text-xl font-bold text-gray-900">Simulation Results</h2>
 
                 <div className="flex items-center space-x-4">
                   {simulationActive && (
@@ -639,19 +683,19 @@ export default function SimulationPage() {
                       <span className="text-blue-400 text-sm font-medium">Simulation Running</span>
                       <button
                         onClick={handleStopSimulation}
-                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+                        className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
                       >
                         Stop
                       </button>
                     </div>
                   )}
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-gray-600">
                     Live Market Data • Real-Time Simulation
                   </div>
                   {simulationConfig && (
                     <button
                       onClick={resetSimulation}
-                      className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+                      className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
                     >
                       Reset
                     </button>
@@ -723,27 +767,27 @@ export default function SimulationPage() {
                   {/* Performance Metrics */}
                   {simulationResults.length > 0 && performanceMetrics && (
                     <div className="grid grid-cols-3 gap-3 mb-4">
-                      <div className="bg-gray-800 p-3 rounded">
-                        <p className="text-xs text-gray-400">Total Executed</p>
-                        <p className="text-lg font-bold text-white">
+                      <div className="bg-gray-50 border border-gray-200 p-3 rounded">
+                        <p className="text-xs text-gray-600">Total Executed</p>
+                        <p className="text-lg font-bold text-gray-900">
                           {performanceMetrics.totalExecuted.toFixed(2)}
                         </p>
                       </div>
-                      <div className="bg-gray-800 p-3 rounded">
-                        <p className="text-xs text-gray-400">VWAP Performance</p>
+                      <div className="bg-gray-50 border border-gray-200 p-3 rounded">
+                        <p className="text-xs text-gray-600">VWAP Performance</p>
                         <p
                           className={`text-lg font-bold ${
                             performanceMetrics.vwapPerformance < 0
-                              ? "text-green-400"
-                              : "text-red-400"
+                              ? "text-green-600"
+                              : "text-red-600"
                           }`}
                         >
                           {performanceMetrics.vwapPerformance.toFixed(2)}%
                         </p>
                       </div>
-                      <div className="bg-gray-800 p-3 rounded">
-                        <p className="text-xs text-gray-400">Execution Rate</p>
-                        <p className="text-lg font-bold text-blue-400">
+                      <div className="bg-gray-50 border border-gray-200 p-3 rounded">
+                        <p className="text-xs text-gray-600">Execution Rate</p>
+                        <p className="text-lg font-bold text-blue-600">
                           {performanceMetrics.executionRate.toFixed(1)}%
                         </p>
                       </div>
@@ -753,21 +797,21 @@ export default function SimulationPage() {
                   {/* Algorithm Comparison Metrics */}
                   {simulationResults.length > 0 && performanceMetrics && (
                     <div className="grid grid-cols-3 gap-3 mb-4">
-                      <div className="bg-gray-800 p-3 rounded">
-                        <p className="text-xs text-gray-400">VWAP-Enhanced Avg Price</p>
-                        <p className="text-lg font-bold text-cyan-400">
+                      <div className="bg-gray-50 border border-gray-200 p-3 rounded">
+                        <p className="text-xs text-gray-600">VWAP-Enhanced Avg Price</p>
+                        <p className="text-lg font-bold text-cyan-600">
                           ${performanceMetrics.vwapEnhancedAvgPrice.toFixed(6)}
                         </p>
                       </div>
-                      <div className="bg-gray-800 p-3 rounded">
-                        <p className="text-xs text-gray-400">Standard TWAP Avg Price</p>
-                        <p className="text-lg font-bold text-orange-400">
+                      <div className="bg-gray-50 border border-gray-200 p-3 rounded">
+                        <p className="text-xs text-gray-600">Standard TWAP Avg Price</p>
+                        <p className="text-lg font-bold text-orange-600">
                           ${performanceMetrics.standardTWAPAvgPrice.toFixed(6)}
                         </p>
                       </div>
-                      <div className="bg-gray-800 p-3 rounded">
-                        <p className="text-xs text-gray-400">Avg Slippage</p>
-                        <p className="text-lg font-bold text-yellow-400">
+                      <div className="bg-gray-50 border border-gray-200 p-3 rounded">
+                        <p className="text-xs text-gray-600">Avg Slippage</p>
+                        <p className="text-lg font-bold text-yellow-600">
                           {(performanceMetrics.averageSlippage * 100).toFixed(2)}%
                         </p>
                       </div>
@@ -778,16 +822,16 @@ export default function SimulationPage() {
                   <div className="flex-1 overflow-hidden">
                     <div className="h-full overflow-y-auto">
                       <table className="w-full text-sm">
-                        <thead className="sticky top-0 bg-gray-900">
-                          <tr className="border-b border-gray-700">
-                            <th className="text-left p-2 text-gray-400">Order ID</th>
-                            <th className="text-left p-2 text-gray-400">Time</th>
-                            <th className="text-left p-2 text-gray-400">Shares</th>
-                            <th className="text-left p-2 text-gray-400">Price</th>
-                            <th className="text-left p-2 text-gray-400">VWAP</th>
-                            <th className="text-left p-2 text-gray-400">Multiplier</th>
-                            <th className="text-left p-2 text-gray-400">Slippage</th>
-                            <th className="text-left p-2 text-gray-400">Status</th>
+                        <thead className="sticky top-0 bg-gray-50 border-b border-gray-300">
+                          <tr className="border-b border-gray-300">
+                            <th className="text-left p-2 text-gray-700">Order ID</th>
+                            <th className="text-left p-2 text-gray-700">Time</th>
+                            <th className="text-left p-2 text-gray-700">Shares</th>
+                            <th className="text-left p-2 text-gray-700">Price</th>
+                            <th className="text-left p-2 text-gray-700">VWAP</th>
+                            <th className="text-left p-2 text-gray-700">Multiplier</th>
+                            <th className="text-left p-2 text-gray-700">Slippage</th>
+                            <th className="text-left p-2 text-gray-700">Status</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -795,15 +839,12 @@ export default function SimulationPage() {
                             .slice()
                             .reverse()
                             .map((result, index) => (
-                              <tr
-                                key={index}
-                                className="border-b border-gray-700 hover:bg-gray-800"
-                              >
-                                <td className="p-2 text-blue-400">{result.orderId}</td>
-                                <td className="p-2 text-gray-300">
+                              <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
+                                <td className="p-2 text-blue-600">{result.orderId}</td>
+                                <td className="p-2 text-gray-700">
                                   {new Date(result.timestamp).toLocaleTimeString()}
                                 </td>
-                                <td className="p-2 text-white font-mono">
+                                <td className="p-2 text-gray-900 font-mono">
                                   <div className="flex items-center space-x-1">
                                     <span>
                                       {Math.abs(result.shares - Math.round(result.shares)) < 0.0001
@@ -878,7 +919,7 @@ export default function SimulationPage() {
         </div>
 
         {/* Configuration Section - 1/4 width */}
-        <div className="w-1/4 border-l border-gray-800 p-4">
+        <div className="w-1/4 border-l border-gray-200 p-4 bg-gray-50 overflow-y-auto max-h-screen sticky top-0">
           <OrderConfiguration
             onConfigSubmit={handleSimulationStart}
             currentPrice={currentPrice}
@@ -889,6 +930,15 @@ export default function SimulationPage() {
             onMarketTypeChange={handleMarketTypeChange}
             isExecuting={simulationActive}
             walletReady={true} // Simulation doesn't require wallet
+            assetRoundingInfo={
+              assetRoundingInfo
+                ? {
+                    asset: assetRoundingInfo.asset,
+                    decimals: assetRoundingInfo.decimals,
+                    example: `e.g., 1.0123 → ${(1.0123).toFixed(assetRoundingInfo.decimals)}`,
+                  }
+                : null
+            }
           />
         </div>
       </div>

@@ -32,6 +32,7 @@ interface TWAPConfig {
   maxMultiplier: number;
   maxParticipation: number;
   timeInterval: number;
+  vwapPeriod: number;
   marketType: MarketType;
 }
 
@@ -197,7 +198,7 @@ Are you sure you want to continue?`;
         vwapAlpha: config.vwapAlpha,
         maxMultiplier: config.maxMultiplier,
         minMultiplier: config.minMultiplier,
-        vwapPeriod: 20, // Use 20-period VWAP
+        vwapPeriod: config.vwapPeriod, // Use form value instead of hardcoded
         asset: config.asset,
         side: config.side.toLowerCase() as "buy" | "sell",
       };
@@ -205,7 +206,29 @@ Are you sure you want to continue?`;
       setExecutionLog((prev) => [
         ...prev,
         `⚙️ Configuration: ${config.totalOrders} orders over ${config.timeInterval}s intervals`,
+        `📊 VWAP Settings: α=${config.vwapAlpha}, period=${config.vwapPeriod}, multipliers=${config.minMultiplier}-${config.maxMultiplier}`,
       ]);
+
+      // Add order preview before execution
+      const baseOrderSize = config.totalSize / config.totalOrders;
+      const estimatedDuration = (config.totalOrders * config.timeInterval) / 60;
+
+      setExecutionLog((prev) => [
+        ...prev,
+        ``,
+        `🔍 ORDER PREVIEW:`,
+        `  📦 Base order size: ${baseOrderSize.toFixed(6)} ${config.asset}`,
+        `  🔢 Total orders: ${config.totalOrders}`,
+        `  ⏱️ Interval: ${config.timeInterval}s between orders`,
+        `  🕐 Est. duration: ${estimatedDuration.toFixed(1)} minutes`,
+        `  📈 VWAP will adjust each order size by ${config.minMultiplier}x - ${config.maxMultiplier}x`,
+        `  ⚠️ Max slippage: ${config.maxSlippage}%`,
+        ``,
+        `⏳ Starting execution in 3 seconds...`,
+      ]);
+
+      // Give user time to review the preview
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       // Execute LIVE TWAP orders
       await executeLiveTWAP(vwapConfig, chartCandlesRef.current);
@@ -317,6 +340,11 @@ Are you sure you want to continue?`;
             vwapData = updateVWAP(vwapData, latestCandle);
           }
 
+          setExecutionLog((prev) => [
+            ...prev,
+            `📊 Updated VWAP: $${vwapData.vwap.toFixed(6)} for order ${i + 1}`,
+          ]);
+
           // Calculate VWAP-adjusted order size
           const vwapOrderSize = calculateVWAPOrderSize(
             baseOrderSize,
@@ -332,9 +360,17 @@ Are you sure you want to continue?`;
 
           setExecutionLog((prev) => [
             ...prev,
-            `� Order ${i + 1}/${config.totalOrders}: ${vwapOrderSize.adjustedSize.toFixed(
+            `🔍 VWAP Analysis for Order ${i + 1}:`,
+            `  💰 Market Price: $${currentMarketPrice.toFixed(6)}`,
+            `  📊 Current VWAP: $${vwapData.vwap.toFixed(6)}`,
+            `  📈 Price vs VWAP: ${vwapOrderSize.priceDeviation.toFixed(2)}%`,
+            `  ⚖️ Volume Multiplier: ${vwapOrderSize.multiplier.toFixed(2)}x (α=${
+              config.vwapAlpha
+            })`,
+            `  📦 Base → Adjusted: ${baseOrderSize.toFixed(
               6
-            )} → ${roundedSize} (${vwapOrderSize.multiplier.toFixed(2)}x)`,
+            )} → ${vwapOrderSize.adjustedSize.toFixed(6)} → ${roundedSize}`,
+            `  💡 ${vwapOrderSize.reasoning}`,
           ]);
 
           // Calculate order price with small slippage for better execution
@@ -386,9 +422,11 @@ Are you sure you want to continue?`;
 
           setExecutionLog((prev) => [
             ...prev,
-            `📤 Placing ${config.side.toUpperCase()} order ${i + 1}: ${roundedSize} ${
-              config.asset
-            } @ $${formattedPrice} (IOC)`,
+            ``,
+            `� PLACING ORDER ${i + 1}/${config.totalOrders} NOW:`,
+            `  💰 ${config.side.toUpperCase()} ${roundedSize} ${config.asset} @ $${formattedPrice}`,
+            `  🔄 Order Type: IOC (Immediate or Cancel)`,
+            `  ⏳ Sending to Hyperliquid...`,
           ]);
 
           // PLACE REAL ORDER ON HYPERLIQUID (using working temp_trade pattern)
@@ -402,10 +440,17 @@ Are you sure you want to continue?`;
           if (orderResult.success) {
             setExecutionLog((prev) => [
               ...prev,
-              `✅ Order ${i + 1} placed successfully! Order ID: ${orderResult.orderId}`,
+              `✅ Order ${i + 1} EXECUTED successfully!`,
+              `  🆔 Order ID: ${orderResult.orderId}`,
+              `  📊 Final Status: COMPLETED`,
             ]);
           } else {
-            setExecutionLog((prev) => [...prev, `❌ Order ${i + 1} failed: ${orderResult.error}`]);
+            setExecutionLog((prev) => [
+              ...prev,
+              `❌ Order ${i + 1} FAILED:`,
+              `  🚫 Error: ${orderResult.error}`,
+              `  📊 Final Status: REJECTED`,
+            ]);
           }
 
           // Update progress
@@ -452,17 +497,17 @@ Are you sure you want to continue?`;
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Navigation */}
       <Navigation />
 
       {/* Main Layout: Chart | Configuration */}
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex min-h-[calc(100vh-80px)]">
         {/* Chart Section - 3/4 width */}
-        <div className="flex-1 w-3/4 flex flex-col overflow-hidden">
+        <div className="flex-1 w-3/4 flex flex-col">
           {/* Chart - Top Half */}
-          <div className="flex-1 p-4 pb-2 overflow-hidden">
-            <div className="w-full h-full bg-gray-900 rounded-lg overflow-hidden">
+          <div className="flex-1 p-4 pb-2 min-h-[400px]">
+            <div className="w-full h-[400px] bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
               <CandleChart
                 coin={selectedCoin}
                 interval={selectedInterval}
@@ -477,13 +522,13 @@ Are you sure you want to continue?`;
           </div>
 
           {/* Position History & Controls - Bottom Half */}
-          <div className="h-1/2 p-4 pt-2">
-            <div className="bg-gray-900 rounded-lg p-4 h-full">
+          <div className="flex-1 p-4 pt-2 min-h-[400px]">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">
+                <h2 className="text-xl font-bold text-gray-900">
                   Live Execution Status & Order History
                 </h2>
-                
+
                 {/* TWAP Status Controls */}
                 <div className="flex items-center space-x-4">
                   {activeTWAP && (
@@ -494,62 +539,36 @@ Are you sure you want to continue?`;
                       </span>
                       <button
                         onClick={handleStopTWAP}
-                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+                        className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
                       >
                         Stop
                       </button>
                     </div>
                   )}
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-gray-600">
                     {isTestnet() ? "Testnet" : "Mainnet"} Data • Real Trading
                   </div>
                 </div>
               </div>
 
-              {/* Asset Rounding Information */}
-              {assetRoundingInfo && (
-                <div className="mb-4 p-3 bg-amber-900/20 border border-amber-500 rounded">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-amber-400 text-sm">⚡</span>
-                    <span className="text-amber-400 text-sm font-medium">
-                      Hyperliquid Order Size Compliance
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-300">
-                    <div className="mb-1">
-                      <span className="text-amber-400">{assetRoundingInfo.asset}</span> orders
-                      rounded to{" "}
-                      {assetRoundingInfo.decimals === 0 ? (
-                        <span className="text-white font-semibold">whole numbers</span>
-                      ) : (
-                        <span className="text-white font-semibold">
-                          {assetRoundingInfo.decimals} decimal places
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-gray-400">{assetRoundingInfo.example}</div>
-                  </div>
-                </div>
-              )}
-
               {/* Wallet Status */}
-              <div className="mb-4 p-3 bg-gray-800 rounded">
+              <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-sm text-gray-400">Wallet:</span>
+                    <span className="text-sm text-gray-600">Wallet:</span>
                     <span
                       className={`ml-2 text-sm ${
-                        walletState.isConnected ? "text-green-400" : "text-red-400"
+                        walletState.isConnected ? "text-green-600" : "text-red-600"
                       }`}
                     >
                       {walletState.isConnected ? "✅ Connected" : "❌ Not Connected"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-sm text-gray-400">Agent:</span>
+                    <span className="text-sm text-gray-600">Agent:</span>
                     <span
                       className={`ml-2 text-sm ${
-                        walletState.isAgentAuthorized ? "text-green-400" : "text-yellow-400"
+                        walletState.isAgentAuthorized ? "text-green-600" : "text-yellow-600"
                       }`}
                     >
                       {walletState.isAgentAuthorized ? "✅ Authorized" : "⚠️ Not Authorized"}
@@ -561,13 +580,13 @@ Are you sure you want to continue?`;
               {activeTWAP ? (
                 <div className="space-y-4">
                   {/* Active TWAP Status */}
-                  <div className="bg-green-900/20 border border-green-500 rounded p-4">
+                  <div className="bg-green-50 border border-green-300 rounded p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-green-400 font-medium">
+                        <h3 className="text-green-700 font-medium">
                           {isExecuting ? "🔥 Executing Live TWAP" : "✅ TWAP Configured"}
                         </h3>
-                        <div className="text-sm text-gray-300 mt-1">
+                        <div className="text-sm text-gray-700 mt-1">
                           {activeTWAP.asset} • {activeTWAP.side} • {activeTWAP.totalSize} shares •{" "}
                           {activeTWAP.totalOrders} orders • {selectedMarketType}
                         </div>
@@ -589,7 +608,7 @@ Are you sure you want to continue?`;
 
                     {/* Progress Bar */}
                     <div className="mt-3">
-                      <div className="flex justify-between text-xs text-gray-400 mb-1">
+                      <div className="flex justify-between text-xs text-gray-600 mb-1">
                         <span>Progress</span>
                         <span>
                           {Math.round(executionProgress)}% •{" "}
@@ -597,7 +616,7 @@ Are you sure you want to continue?`;
                           {activeTWAP.totalOrders} orders
                         </span>
                       </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full transition-all duration-300 ${
                             isExecuting ? "bg-green-500" : "bg-blue-500"
@@ -609,10 +628,10 @@ Are you sure you want to continue?`;
                   </div>
 
                   {/* Execution Log */}
-                  <div className="bg-gray-800 rounded p-4 h-64 overflow-y-auto">
-                    <h4 className="text-white font-medium mb-2">Execution Log</h4>
+                  <div className="bg-gray-50 border border-gray-200 rounded p-4 min-h-[300px] max-h-[600px] overflow-y-auto">
+                    <h4 className="text-gray-900 font-medium mb-2">Execution Log</h4>
                     {executionLog.length === 0 ? (
-                      <div className="text-gray-400 text-sm">
+                      <div className="text-gray-600 text-sm">
                         {isExecuting
                           ? "Starting execution..."
                           : "Ready to start execution when you click 'Start TWAP'"}
@@ -620,7 +639,10 @@ Are you sure you want to continue?`;
                     ) : (
                       <div className="space-y-1">
                         {executionLog.map((log, index) => (
-                          <div key={index} className="text-xs text-gray-300 font-mono">
+                          <div
+                            key={index}
+                            className="text-xs text-gray-700 font-mono whitespace-pre-wrap"
+                          >
                             {log}
                           </div>
                         ))}
@@ -644,9 +666,10 @@ Are you sure you want to continue?`;
         </div>
 
         {/* Configuration Section - 1/4 width */}
-        <div className="w-1/4 border-l border-gray-800 p-4">
+        <div className="w-1/4 border-l border-gray-200 p-4 bg-gray-50 overflow-y-auto max-h-screen sticky top-0">
           <OrderConfiguration
             onConfigSubmit={handleConfigSubmit}
+            onStopTWAP={handleStopTWAP}
             currentPrice={currentPrice}
             selectedToken={selectedCoin}
             selectedMarketType={selectedMarketType}
@@ -655,6 +678,7 @@ Are you sure you want to continue?`;
             isSimulation={false}
             isExecuting={isExecuting}
             walletReady={walletState.isConnected && walletState.isAgentAuthorized}
+            assetRoundingInfo={assetRoundingInfo}
           />
         </div>
       </div>
