@@ -229,7 +229,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
     setError(null);
 
     try {
-      const result = await authorizeAgent(isTestnet(), "Nami Agent");
+      const result = await authorizeAgent(isTestnet(), "Clione Agent");
 
       setWalletState((prev) => ({
         ...prev,
