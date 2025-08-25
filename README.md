@@ -1,7 +1,7 @@
 # Clione
 
 <div align="center">
-    <img src="./public/logo.png" alt="Clione Logo" width="200"/>
+    <img src="./public/clean-logo.png" alt="Clione Logo" width="200"/>
 </div>
 
 <h3 align="center">Trading with the Rhythm of the Market</h3>
