@@ -1,4 +1,4 @@
-# Clione �
+# Clione
 
 <div align="center">
     <img src="./public/logo.png" alt="Clione Logo" width="200"/>
@@ -46,20 +46,6 @@ Clione creates value across the entire Hyperliquid ecosystem:
 ## 🎬 Demo Video
 
 [![Watch the Demo Video](https://img.youtube.com/vi/ucVzzDVSqro/0.jpg)](https://youtu.be/ucVzzDVSqro)
-
-## 📸 Screenshots
-
-*Live Trading Interface with Real-Time VWAP Analysis:*
-![Live Trading Interface](https://github.com/user-attachments/assets/live-trading-interface.png)
-
-*Advanced Configuration Panel with Risk Management:*
-![Configuration Panel](https://github.com/user-attachments/assets/config-panel.png)
-
-*Real-Time Simulation with Performance Analytics:*
-![Simulation Mode](https://github.com/user-attachments/assets/simulation-mode.png)
-
-*Comprehensive Documentation and Algorithm Explanation:*
-![Documentation](https://github.com/user-attachments/assets/documentation.png)
 
 ## Deep Research, Documentation
 
