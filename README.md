@@ -10,6 +10,22 @@
 
 We bridge the gap between complex algorithmic trading and user-friendly execution, offering dynamic order sizing, real-time slippage protection, and comprehensive market analysis – all powered by mathematical precision and executed on Hyperliquid's cutting-edge infrastructure.
 
+## 🚀 Archived
+
+This repository is now officially archived.
+
+**Clione** was awarded a significant bounty from the Hyperliquid community — something I am genuinely proud of as the developer behind this project.
+
+Clione began as an algorithmic solution, contributing to the broader field of quantitative and algorithmic trading. Since then, it has been incubated, refined, and fully integrated into a live production environment.
+
+The evolved and production-ready implementation is now available at [Hakifi](https://hakifi.xyz/)
+
+You are welcome to explore and experience it there.
+
+In alignment with my principles, the original version of the algorithm remains fully open-source in this repository. Transparency and open contribution to the quantitative ecosystem have always been core values of this project.
+
+Thank you to everyone who supported and followed the journey.
+
 ## ✨ Core Benefits
 
 Clione creates value across the entire Hyperliquid ecosystem:
@@ -191,7 +207,7 @@ Clione's VWAP-Enhanced TWAP algorithm demonstrates superior execution quality:
 
 ## Contributing 🎮
 
-This project is developed and maintained by **[Trong-tra](https://github.com/Trong-tra)**.
+This project is developed by **[Trong-tra](https://github.com/Trong-tra)**.
 
 <div align="center">
     <img src="./public/logo.png" alt="Clione Logo" width="150"/>
@@ -199,10 +215,4 @@ This project is developed and maintained by **[Trong-tra](https://github.com/Tro
     <em>Swimming with the market's rhythm</em>
 </div>
 
-Contributions, issues, and feature requests are welcome! Feel free to:
-- 🐛 Report bugs or suggest improvements
-- 📈 Propose new trading features or algorithms  
-- 📚 Contribute to documentation and educational content
-- 🌊 Help expand the Hyperliquid ecosystem
-
-**Join us in building the future of intelligent, accessible algorithmic trading on Hyperliquid!**
+**I'm actively running teams to pushing products go to market! Connect with me if you wish to be part of**
