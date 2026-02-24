@@ -10,11 +10,15 @@
 
 We bridge the gap between complex algorithmic trading and user-friendly execution, offering dynamic order sizing, real-time slippage protection, and comprehensive market analysis – all powered by mathematical precision and executed on Hyperliquid's cutting-edge infrastructure.
 
-## 🚀 Archived
+---
 
-This repository is now officially archived.
+## ARCHIVED
 
-**Clione** was awarded a significant bounty from the Hyperliquid community — something I am genuinely proud of as the developer behind this project.
+This repository is now officially ARCHIVED.
+
+**Clione** was awarded a significant bounty from the Hyperliquid community, something I am genuinely proud of as the developer behind this project.
+
+You can view the official announcement here: [Hyperliquid Hackathon Announcement](https://x.com/hl_hackathon/status/1966757003163804027)
 
 Clione began as an algorithmic solution, contributing to the broader field of quantitative and algorithmic trading. Since then, it has been incubated, refined, and fully integrated into a live production environment.
 
@@ -25,6 +29,8 @@ You are welcome to explore and experience it there.
 In alignment with my principles, the original version of the algorithm remains fully open-source in this repository. Transparency and open contribution to the quantitative ecosystem have always been core values of this project.
 
 Thank you to everyone who supported and followed the journey.
+
+---
 
 ## ✨ Core Benefits
 
